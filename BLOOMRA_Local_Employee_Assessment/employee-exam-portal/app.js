@@ -236,6 +236,12 @@ function submitExam(auto, reason) {
   const results = getResults().map(r => r.employeeKey === state.key ? { ...r, superseded: true } : r);
   results.push(result);
   const ok = saveResults(results);
+  
+  // Save to database (if Supabase is configured)
+  if (typeof saveResultToDatabase !== 'undefined') {
+    saveResultToDatabase(result).catch(err => console.error("Failed to save to database:", err));
+  }
+  
   const attempts = getAttempts(); attempts[state.key] = true; writeJSON(ATTEMPTS_KEY, attempts);
   localStorage.removeItem(PROGRESS_KEY);
   showResult(result, ok, false); show("resultView");
@@ -296,7 +302,7 @@ const tone = p => p >= 75 ? "good" : p >= 50 ? "mid" : "low";
 function renderAdmin() {
   const all = getResults(), res = activeResults(), s = getSettings();
   $("adminSub").textContent = `Results saved in this browser · pass mark ${s.passMark}% · ${s.timeLimit ? s.timeLimit + " min limit" : "no time limit"}`;
-  $("adminWarning").textContent = "Local-only notice: results are stored in this browser. Employees on other computers will not appear here until you import their result files (Import / merge). Take regular backups and do not clear browser data.";
+  $("adminWarning").textContent = "Cloud-synced results: results are now synced with the database. All employees' results across different devices will appear here automatically.";
 
   const pcts = res.map(pctOf), avg = pcts.length ? Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length) : 0;
   const passRate = res.length ? Math.round(res.filter(isPassed).length / res.length * 100) : 0;
