@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BLOOMRA | Employee Assessment</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="shell">
+  <header class="topbar">
+    <div class="brand-mark">B</div>
+    <div><h1>BLOOMRA</h1><p>Employee Assessment Portal</p></div>
+    <span class="local-tag" id="modeTag">LOCAL VERSION</span>
+  </header>
+
+  <!-- LOGIN -->
+  <section id="loginView" class="panel login-panel">
+    <span class="eyebrow">SECURE ACCESS</span>
+    <h2>Welcome</h2>
+    <p class="muted">Sign in to take your department assessment.</p>
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab active" id="tabEmployee" role="tab">Employee</button>
+      <button type="button" class="tab" id="tabAdmin" role="tab">Admin</button>
+    </div>
+
+    <form id="employeeForm" autocomplete="off">
+      <label for="empName">Full name</label>
+      <input id="empName" placeholder="e.g. Rahul Sharma" required minlength="2">
+      <label for="empDept">Department / role</label>
+      <select id="empDept" required></select>
+      <label for="empPass">Password</label>
+      <input id="empPass" type="password" placeholder="Employee password" required>
+      <div class="rules" id="examRules"></div>
+      <button class="primary wide" type="submit">Start assessment <span>→</span></button>
+      <p id="empError" class="error" aria-live="polite"></p>
+    </form>
+
+    <form id="adminForm" class="hidden" autocomplete="off">
+      <label for="admUser">Admin username</label>
+      <input id="admUser" autocomplete="username" required>
+      <label for="admPass">Password</label>
+      <input id="admPass" type="password" autocomplete="current-password" required>
+      <button class="primary wide" type="submit">Open admin console <span>→</span></button>
+      <p id="admError" class="error" aria-live="polite"></p>
+    </form>
+  </section>
+
+  <!-- EXAM -->
+  <section id="examView" class="hidden">
+    <div id="warnBar" class="warn-bar hidden" role="alert"></div>
+    <div class="exam-heading">
+      <div><span class="eyebrow">DEPARTMENT ASSESSMENT</span><h2 id="departmentTitle"></h2><p id="employeeTitle" class="muted"></p></div>
+      <div class="timer" id="timerBox" title="Time remaining"><span class="timer-label">Time left</span><strong id="timerText">--:--</strong></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-meta"><span id="progressText"></span><span id="answeredText"></span></div>
+      <div class="progress"><div id="progressBar"></div></div>
+    </div>
+    <div class="exam-layout">
+      <div>
+        <div id="questionStage"></div>
+        <div class="nav-row">
+          <button type="button" class="secondary" id="prevBtn">← Previous</button>
+          <button type="button" class="flag-btn" id="flagBtn">⚑ Mark for review</button>
+          <button type="button" class="primary" id="nextBtn">Next →</button>
+        </div>
+      </div>
+      <aside class="palette-card">
+        <h3>Questions</h3>
+        <div id="palette" class="palette"></div>
+        <div class="legend"><span><i class="dot answered"></i>Answered</span><span><i class="dot flagged"></i>Flagged</span><span><i class="dot"></i>Pending</span></div>
+        <button type="button" class="primary wide" id="submitBtn">Submit exam</button>
+        <p class="muted small" id="autosaveNote">Progress is saved automatically.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="resultView" class="hidden">
+    <div class="result-header"><span class="eyebrow">ASSESSMENT COMPLETED</span><h2>Your result</h2><p id="resultIdentity" class="muted"></p></div>
+    <div class="score-card">
+      <div class="score-ring" id="scoreRing"><div><strong id="percentage">0%</strong><span>Score</span></div></div>
+      <div class="score-stats">
+        <div><strong id="correctCount">0</strong><span>Correct</span></div>
+        <div><strong id="wrongCount">0</strong><span>Wrong</span></div>
+        <div><strong id="skippedCount">0</strong><span>Skipped</span></div>
+        <div><strong id="timeTaken">--</strong><span>Time taken</span></div>
+      </div>
+      <div class="verdict" id="verdict"></div>
+    </div>
+    <div class="actions no-print">
+      <button class="secondary" id="printResultBtn" type="button">Print / save as PDF</button>
+      <button class="secondary" id="downloadResultBtn" type="button">Download result file</button>
+    </div>
+    <h3 class="review-title">Answer review</h3>
+    <div id="reviewList"></div>
+    <p class="lock-note no-print" id="lockNote"></p>
+    <button id="resultLogoutBtn" class="secondary no-print" type="button">Back to login</button>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="adminView" class="hidden">
+    <div class="admin-heading">
+      <div><span class="eyebrow">ADMIN CONSOLE</span><h2>Assessment results</h2><p class="muted" id="adminSub"></p></div>
+      <button id="adminLogoutBtn" class="text-button" type="button">Log out</button>
+    </div>
+
+    <div class="stats-grid" id="statsGrid"></div>
+
+    <div class="charts">
+      <div class="chart-card"><h3>Average score by department</h3><div id="deptChart"></div></div>
+      <div class="chart-card"><h3>Score distribution</h3><div id="distChart"></div></div>
+    </div>
+
+    <div class="chart-card wide-card">
+      <h3>Question analysis <span class="muted small" id="qaHint"></span></h3>
+      <div class="inline-filter"><select id="qaDept"></select></div>
+      <div id="qaList"></div>
+    </div>
+
+    <div class="chart-card wide-card">
+      <h3>Top performers</h3>
+      <ol id="leaderboard" class="leaderboard"></ol>
+    </div>
+
+    <div class="toolbar">
+      <input id="resultSearch" placeholder="Search employee or department...">
+      <select id="filterDept"></select>
+      <select id="filterStatus"><option value="">All outcomes</option><option value="pass">Passed</option><option value="fail">Failed</option></select>
+    </div>
+    <div class="toolbar actions-bar">
+      <button id="exportBtn" class="secondary" type="button">Export CSV</button>
+      <button id="backupBtn" class="secondary" type="button">Backup (JSON)</button>
+      <label class="secondary file-btn">Import / merge<input id="importFile" type="file" accept=".json,application/json" hidden multiple></label>
+      <button id="printBtn" class="secondary" type="button">Print report</button>
+      <button id="refreshBtn" class="secondary" type="button">Refresh</button>
+      <button id="settingsBtn" class="secondary" type="button">Settings</button>
+    </div>
+    <p id="importMsg" class="notice hidden" aria-live="polite"></p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th data-sort="employee">Employee</th><th data-sort="department">Department</th><th data-sort="pct">Score</th>
+          <th data-sort="pct">%</th><th>Outcome</th><th data-sort="duration">Time</th><th data-sort="strikes">Integrity</th><th data-sort="submittedAt">Submitted</th><th class="no-print">Actions</th>
+        </tr></thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+    <p id="emptyResults" class="empty-state">No employee submissions yet.</p>
+
+    <div id="adminDetail" class="admin-detail hidden"></div>
+    <p class="admin-warning no-print" id="adminWarning"></p>
+  </section>
+
+  <footer>BLOOMRA · Employee Assessment Portal</footer>
+</main>
+
+<div id="watermark" class="watermark hidden" aria-hidden="true"></div>
+<div id="fsOverlay" class="fs-overlay hidden"><div class="fs-box"><h3>Full screen required</h3><p>You left full-screen mode. This has been recorded. Return to full screen to continue — your timer is still running.</p><button id="fsBtn" class="primary" type="button">Return to full screen</button></div></div>
+
+<dialog id="settingsDialog">
+  <form method="dialog" id="settingsForm">
+    <h3>Assessment settings</h3>
+    <label for="setPass">Pass mark (%)</label><input id="setPass" type="number" min="1" max="100">
+    <label for="setTime">Time limit (minutes, 0 = no limit)</label><input id="setTime" type="number" min="0" max="240">
+    <label class="check"><input type="checkbox" id="setShuffle"> Shuffle question order</label>
+    <label class="check"><input type="checkbox" id="setAnti"> Anti-cheat: block copy/paste/right-click, log tab switches</label>
+    <label class="check"><input type="checkbox" id="setFull"> Require full-screen during the exam</label>
+    <label for="setStrikes">Auto-submit after this many strikes (0 = never)</label><input id="setStrikes" type="number" min="0" max="20">
+    <label class="check"><input type="checkbox" id="setShowAnswers"> Show correct answers to employees after submission</label>
+    <label for="setEmpPass">Employee password</label><input id="setEmpPass" type="text">
+    <label for="setAdmPass">Admin password</label><input id="setAdmPass" type="text">
+    <div class="dialog-actions"><button class="secondary" value="cancel">Cancel</button><button class="primary" id="saveSettings" value="save">Save</button></div>
+  </form>
+</dialog>
+
+<script src="data/questions.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
