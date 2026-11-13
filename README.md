@@ -26,6 +26,13 @@ Administrators can access a dashboard to monitor employee performance, review ex
 - JavaScript
 - Browser Local Storage
 
+## Netlify deployment
+
+The repository's `netlify.toml` publishes
+`BLOOMRA_Local_Employee_Assessment/employee-exam-portal`, which contains the
+portal's `index.html`, styles, scripts, and question data. No build command is
+required. After deployment, the portal is available at the site's root URL.
+
 ## Project Type
 Frontend-based employee assessment management system.
 
